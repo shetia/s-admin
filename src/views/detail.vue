@@ -38,7 +38,7 @@ export default {
   pageName: '',
   data () {
     return {
-      uploadUrl: this.$axios.defaults.baseURL + this.$api.upload,
+      uploadUrl: this.$api.upload,
       detail: {},
       fileList:[],
       rules: {
@@ -78,10 +78,9 @@ export default {
           let resData = res.data.data
           if(Object.keys(resData).length){
             this.detail = resData
-            let base = this.$axios.defaults.baseURL
             this.fileList.push({
               name: resData.fileId,
-              url: base + resData.fileUrl
+              url: resData.fileUrl
             })
           }
         }
@@ -107,7 +106,7 @@ export default {
       }).then(res => {
         if(res.data.code === '200') {
           this.$message.success('新增成功')
-          this.$router.replace('/')
+          this.$router.go(-1)
         } else {
           this.$message.success('新增失败')
         }
@@ -117,7 +116,7 @@ export default {
       this.$axios.post(this.$api.update, this.detail).then(res => {
         if(res.data.code === '200') {
           this.$message.success('修改成功')
-          this.$router.replace('/')
+          this.$router.go(-1)
         } else {
           this.$message.success('修改失败')
         }

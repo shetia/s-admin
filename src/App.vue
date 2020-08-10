@@ -28,12 +28,15 @@ export default{
   data () {
     return {
       pages:[
-        {path:'/', label: '列表'}
+        {path:'/', label: '列表'},
+        {path:'/cardList', label: '卡片列表'},
+        {path:'/bigFile', label: '大文件上传'},
       ]
     }
   },
   methods: {
     goPage(item){
+      if(location.pathname == item.path) return
       this.$router.push(item.path)
     }
   }
@@ -60,5 +63,9 @@ html,body,#app{
 .el-aside{
   background: hsl(210, 10%, 20%);
   color: #fff;
+}
+.el-main{
+  height: 100%;
+  overflow: hidden;
 }
 </style>

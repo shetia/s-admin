@@ -1,53 +1,35 @@
 <template>
   <div  class='list'>
     <div class="header">
-      <el-input v-model="name" placeholder="请输入内容" style="width: 200px; margin-right: 12px;"></el-input>
+      <el-input v-model="name" placeholder="请输入名字搜索" style="width: 200px; margin-right: 12px;"></el-input>
       <el-button type="primary" @click="search">搜索</el-button>
       <el-button type="success" @click="add">新增</el-button>
     </div> 
-    <div  >
-      <el-table
-        :data="tableData"
-        border
-        >
-        <el-table-column
-          fixed
-          type="index"
-          width="50"
-          label="序号">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="姓名"
-          min-width="200">
-        </el-table-column>
-        <el-table-column
-          prop="age"
-          label="年龄" min-width="200">
-        </el-table-column>
-        <el-table-column
-          label="照片"  min-width="200">
-          <template slot-scope="scope">
-            <img :src="scope.row.fileUrl" alt="" width="80px">
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作" min-width="200">
-          <template slot-scope="scope">
-            <el-button type="primary" @click="detail(scope.row)">编辑</el-button>
-            <el-button @click="del(scope.row)" type="danger">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+    <div class="main">
+      <Scard :tableData="tableData" :form="form">
+       <template v-slot="{ row }">
+          <el-button type="danger" @click="del(row)">删除</el-button>
+          <el-button type="primary" @click="detail(row)">编辑</el-button>
+       </template>
+      </Scard>
     </div> 
   </div>
 </template>
 
 <script>
+import Scard from '../components/s-card.vue'
 export default {
   pageName: '',
+  components: {
+    Scard
+  },
   data () {
     return {
+      form: [
+        {label: '姓名', key: 'name'},
+        {label: '年龄', key: 'age'},
+        {label: 'ID', key: 'id'},
+      ],
       tableData: [],
       name: ''
     }
@@ -63,6 +45,10 @@ export default {
           this.tableData = resData
         }
       })
+    },
+    getImgUrl(url){
+      let base = this.$axios.defaults.baseURL
+      return `${base}${url}`
     },
     del(item){
       this.$confirm('此操作删除该行, 是否继续?', '提示', {
@@ -81,11 +67,7 @@ export default {
             });
           }
         })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '删除失败'
-        });          
+      }).catch(() => {        
       });
 
     },
@@ -113,7 +95,7 @@ export default {
 .list{
   .header{
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    box-shadow: 0px 0px 5px #ccc;
     height: 100px;
     margin-bottom: 24px;
     display:flex;
