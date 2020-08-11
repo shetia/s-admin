@@ -2,7 +2,7 @@
   <div id="app">
     <el-container>
       <el-header>
-        <i :class="htmlClass" @click="changeTheme"></i>
+        <i :class="htmlClass" @click="changeTheme" title="切换主题"></i>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -97,5 +97,6 @@ html[theme='dark-mode'] video{
 }
 i{
   cursor: pointer;
+  font-size: 30px;
 }
 </style>

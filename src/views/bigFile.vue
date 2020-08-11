@@ -1,40 +1,53 @@
 <template>
   <div  class='black-box'>
-    <div>
+    <div class="header">
       <input type="file" @change="fileChange">
       <el-button type="primary" @click="handleUpload" :disabled="status !== STATUS.wait || !container.file">上传</el-button>
       <el-button type="info" @click="handleResume" v-if="status == STATUS.pause">继续</el-button>
       <el-button type="danger" @click="handlePause" v-else :disabled="status !== STATUS.uploading">暂停</el-button>
-      <el-button type="danger" @click="clearDir" >清空大文件件</el-button>
+      <el-button type="danger" @click="clearDir" >清空大文件夹</el-button>
     </div>
-    <div>
+    <div class="bigfile-list">
+      <el-table :data="bigFiles">
+        <el-table-column label="文件名" prop="name">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template v-slot="{ row }">
+            <el-button type="primary" @click="play(row)">播放</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="progress">
       <div>计算hash</div>
       <el-progress :text-inside="true" :stroke-width="20" status="warning" :percentage="hashPercentage"></el-progress>
       <div>总进度</div>
       <el-progress :text-inside="true" :stroke-width="20" :percentage="fakeUploadPercentage"></el-progress>
     </div>
-    <!-- 切片进度条 -->
-    <el-table :data="data">
-      <el-table-column
-        prop="hash"
-        label="切片hash"
-        align="center"
-      ></el-table-column>
-      <el-table-column label="大小(KB)" align="center" width="120">
-        <template v-slot="{ row }">
-          {{ row.size | transformByte }}
-        </template>
-      </el-table-column>
-      <el-table-column label="进度" align="center">
-        <template v-slot="{ row }">
-          <el-progress
-            :percentage="row.percentage"
-          ></el-progress>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="chunk-list">
+      <!-- 切片进度条 -->
+      <el-table :data="data">
+        <el-table-column
+          prop="hash"
+          label="切片hash"
+          align="center"
+        ></el-table-column>
+        <el-table-column label="大小(KB)" align="center" width="120">
+          <template v-slot="{ row }">
+            {{ row.size | transformByte }}
+          </template>
+        </el-table-column>
+        <el-table-column label="进度" align="center">
+          <template v-slot="{ row }">
+            <el-progress
+              :percentage="row.percentage"
+            ></el-progress>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <div class="file-display">
-      <video :src="videoUrl" autoplay controls="controls" height="360" width="500"></video>
+      <video v-if="videoUrl" :src="videoUrl" autoplay controls="controls" height="360" width="500"></video>
       <p>路径: <a :href="`http://localhost:3000${videoUrl}`" target="_blank">http://localhost:3000{{videoUrl}}</a></p>
     </div>
   </div>
@@ -59,14 +72,16 @@ export default {
       STATUS,
       container: {
         file: null,
-        worker: null
+        worker: {},
+        hash: ''
       },
       status: STATUS.wait,
       data: [],
       videoUrl: '',
       hashPercentage: 0,
       requestList: [],
-      fakeUploadPercentage: 0
+      fakeUploadPercentage: 0,
+      bigFiles: []
     }
   },  
   computed: {
@@ -87,6 +102,9 @@ export default {
         this.fakeUploadPercentage = n
       }
     }
+  },
+  mounted(){
+    this.getLocationBigFiles()
   },
   methods: {
     /**
@@ -117,13 +135,16 @@ export default {
     fileChange (e){
       let [file] = e.target.files
       if(!file) return
+      this.init()
+      this.container.file = file
+    },
+    init () {
       this.resetData() // 11.2 重新选择文件, 取消请求, 重置数据
       this.data = [] // 选择文件清空data 来清空进度条
       this.hashPercentage = 0
       this.fakeUploadPercentage = 0
       this.videoUrl = ''
       this.status = STATUS.wait
-      this.container.file = file
     },
     // 二. 拿到文件, 把文件分成切片
     createChunk (file, size = SIZE) {
@@ -144,7 +165,6 @@ export default {
       let { shouldUpload, filePath, uploadedList} = await this.verifyUpload(this.container.file.name, this.container.hash)
       if(!shouldUpload){
         this.$message.success('秒传成功')
-        this.videoUrl = filePath
         this.fakeUploadPercentage = 100
         return 
       }
@@ -195,14 +215,14 @@ export default {
       let res = await this.request({
         url: this.$api.merge,
         headers: {
-          'content-type': 'application/json'
-        },  
+          "content-type": "application/json"
+        }, 
         data: JSON.stringify(data)
       })
       let resData = JSON.parse(res)
       if(resData.status == 200){
         this.$message.success('合并成功')
-        this.videoUrl = resData.filePath
+        this.getLocationBigFiles()
         this.status = STATUS.wait
       }
     },
@@ -265,18 +285,58 @@ export default {
       let resData = JSON.parse(res)
       if(resData.status == 200){
         this.$message.success('清除成功')
+        this.getLocationBigFiles()
+      } else {
+        this.$message.success('清除失败')
       }
+      this.init()
+    },
+    async getLocationBigFiles () {
+      let res = await this.request({
+        url: this.$api.getLocationBigFiles,
+        headers: {
+          "content-type": "application/json"
+        }
+      })
+      let resData = JSON.parse(res)
+      if(resData.status == 200){
+        this.bigFiles = resData.files
+      } else {
+        this.$message.success('获取失败')
+      }
+    },
+    play (row) {
+      this.videoUrl = row.fileUrl
     }
   }
 }
 </script>
 
 <style lang='scss' scoped>
+@mixin box-style {
+  box-shadow: 0px 0px 10px #aaa;
+  padding: 24px;
+  border-radius: 5px;
+  margin: 24px 0;
+}
+.header{
+  @include box-style;
+}
 .file-display{
+  @include box-style;
   display: flex;
   justify-content: center;
   margin-top: 24px;
   flex-direction: column;
   align-items: center;
+}
+.bigfile-list{
+  @include box-style;
+}
+.progress {
+  @include box-style;
+}
+.chunk-list{
+  @include box-style;
 }
 </style>
