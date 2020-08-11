@@ -95,7 +95,8 @@ export default {
 .list{
   .header{
     box-sizing: border-box;
-    box-shadow: 0px 0px 5px #ccc;
+    box-shadow: 0px 0px 10px #aaa;
+    border-radius: 5px;
     height: 100px;
     margin-bottom: 24px;
     display:flex;

@@ -113,7 +113,7 @@ export default {
 .list{
   .header{
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    border: 1px solid #eee;
     height: 100px;
     margin-bottom: 24px;
     display:flex;

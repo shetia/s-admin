@@ -41,15 +41,16 @@ export default {
 <style lang='scss' scoped>
   .card-list{
     display:grid;
-    grid-template-columns: repeat(3, 33.33%);
+    grid-template-columns: repeat(3, 32%); // 分为多少列
+    // grid-template-rows: repeat(3, 33.33%); // 分为多少行
+    grid-row-gap: 24px; // 行间隔
+    grid-column-gap: 2%; // 列间隔
     .card-list__item{
-      width: 80%;
       min-height: 100px;
-      margin-bottom: 24px;
       box-sizing: border-box;
       padding: 12px;
       border-radius: 5px;
-      box-shadow: 0px 0px 5px #ccc;
+      box-shadow: 0px 0px 10px #aaa;
       .item-top{
         position: relative;
         .head{

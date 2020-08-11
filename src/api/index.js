@@ -9,6 +9,7 @@
   chunk:'/chunk',         //   上传切片
   merge:'/merge',         //   合并切片
   verify:'/verify',         //  校验文件是否已经存在或已上传过
+  clearBigDir:'/clearBigDir',  //  清空大文件夹
 }
 let base = '/api'
 Object.keys(api).forEach(path => {
