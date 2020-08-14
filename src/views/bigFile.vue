@@ -1,12 +1,5 @@
 <template>
   <div  class='black-box'>
-    <div class="header">
-      <input type="file" @change="fileChange">
-      <el-button type="primary" @click="handleUpload" :disabled="status !== STATUS.wait || !container.file">上传</el-button>
-      <el-button type="info" @click="handleResume" v-if="status == STATUS.pause">继续</el-button>
-      <el-button type="danger" @click="handlePause" v-else :disabled="status !== STATUS.uploading">暂停</el-button>
-      <el-button type="danger" @click="clearDir" >清空大文件夹</el-button>
-    </div>
     <div class="bigfile-list">
       <el-table :data="bigFiles">
         <el-table-column label="文件名" prop="name">
@@ -17,6 +10,17 @@
           </template>
         </el-table-column>
       </el-table>
+    </div>
+    <div class="file-display">
+      <video v-if="videoUrl" :src="videoUrl" autoplay controls="controls" height="360" width="500"></video>
+      <p>路径: <a :href="`http://localhost:3000${videoUrl}`" target="_blank">http://localhost:3000{{videoUrl}}</a></p>
+    </div>
+    <div class="header">
+      <input type="file" @change="fileChange">
+      <el-button type="primary" @click="handleUpload" :disabled="status !== STATUS.wait || !container.file">上传</el-button>
+      <el-button type="info" @click="handleResume" v-if="status == STATUS.pause">继续</el-button>
+      <el-button type="danger" @click="handlePause" v-else :disabled="status !== STATUS.uploading">暂停</el-button>
+      <el-button type="danger" @click="clearDir" >清空大文件夹</el-button>
     </div>
     <div class="progress">
       <div>计算hash</div>
@@ -46,10 +50,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="file-display">
-      <video v-if="videoUrl" :src="videoUrl" autoplay controls="controls" height="360" width="500"></video>
-      <p>路径: <a :href="`http://localhost:3000${videoUrl}`" target="_blank">http://localhost:3000{{videoUrl}}</a></p>
-    </div>
+
   </div>
 </template>
 
@@ -136,6 +137,7 @@ export default {
       let [file] = e.target.files
       if(!file) return
       this.init()
+      console.log(file)
       this.container.file = file
     },
     init () {
@@ -143,7 +145,6 @@ export default {
       this.data = [] // 选择文件清空data 来清空进度条
       this.hashPercentage = 0
       this.fakeUploadPercentage = 0
-      this.videoUrl = ''
       this.status = STATUS.wait
     },
     // 二. 拿到文件, 把文件分成切片
@@ -285,6 +286,7 @@ export default {
       let resData = JSON.parse(res)
       if(resData.status == 200){
         this.$message.success('清除成功')
+        this.videoUrl = ''
         this.getLocationBigFiles()
       } else {
         this.$message.success('清除失败')
