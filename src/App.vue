@@ -7,7 +7,7 @@
       <el-container>
         <el-aside width="200px">
           <el-menu
-                default-active="2"
+                :default-active="activeMenu"
                 background-color="#aaccc9"
                 class="el-menu-vertical-demo"
                 active-text-color="#ffd04b">
@@ -30,11 +30,17 @@ export default{
     return {
       htmlClass:'el-icon-moon', // el-icon-sunny
       pages:[
-        {path:'/', label: '列表'},
-        {path:'/cardList', label: '卡片列表'},
-        {path:'/bigFile', label: '大文件上传'},
-      ]
+        { path:'/', label: '列表'},
+        { path:'/cardList', label: '卡片列表'},
+        { path:'/bigFile', label: '大文件上传'},
+        { path:'/testG2', label: 'G2'},
+        { path:'/test', label: '测试'},
+      ],
+      activeMenu: 'Home'
     }
+  },
+  created(){
+    this.activeMenu = location.pathname
   },
   methods: {
     goPage(item){
