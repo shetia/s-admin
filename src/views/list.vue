@@ -4,7 +4,16 @@
       <el-input v-model="name" placeholder="请输入内容" style="width: 200px; margin-right: 12px;"></el-input>
       <el-button type="primary" @click="search">搜索</el-button>
       <el-button type="success" @click="add">新增</el-button>
-    </div> 
+      <download-excel
+            style="margin-left: 12px;"
+            class="export-excel-wrapper"
+            :data="tableData"
+            :fields="json_fields"
+            name = "表格数据.xls">
+            <!-- 上面可以自定义自己的样式，还可以引用其他组件button -->
+            <el-button type="primary" >导出EXCEL</el-button>
+      </download-excel>
+    </div>
     <div  >
       <el-table
         :data="tableData"
@@ -39,15 +48,31 @@
           </template>
         </el-table-column>
       </el-table>
-    </div> 
+    </div>
   </div>
 </template>
 
 <script>
+
+import downloadExcel from 'vue-json-excel'
 export default {
   pageName: '',
+  components: {
+    downloadExcel
+  },
   data () {
     return {
+      json_fields: {
+        "姓名": "name",    //常规字段
+        "年龄": "age", //支持嵌套属性
+        "照片": {
+          field: "fileUrl",
+                    //自定义回调函数
+          callback: value => {
+            return `<img src="http://localhost:8080/${value}" width="100" height="100">`;
+          }
+        },
+      },
       tableData: [],
       name: ''
     }
@@ -85,7 +110,7 @@ export default {
         this.$message({
           type: 'info',
           message: '删除失败'
-        });          
+        });
       });
 
     },
@@ -104,6 +129,9 @@ export default {
     },
     detail (item) {
       this.$router.push({path:'/detail/edit', query:{id: item.id}})
+    },
+    exportExcel () {
+
     }
   }
 }

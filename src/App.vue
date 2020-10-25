@@ -35,6 +35,7 @@ export default{
         { path:'/bigFile', label: '大文件上传'},
         { path:'/testG2', label: 'G2'},
         { path:'/test', label: '测试'},
+        { path:'/orgTree', label: '组织架构图'},
       ],
       activeMenu: 'Home'
     }

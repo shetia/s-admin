@@ -36,6 +36,11 @@ Vue.use(VueRouter)
     path: '/testG2',
     name: 'testG2',
     component: () => import('../views/testG2.vue')
+  },
+  {
+    path: '/orgTree',
+    name: 'orgTree',
+    component: () => import('../views/orgTree.vue')
   }
 ]
 
